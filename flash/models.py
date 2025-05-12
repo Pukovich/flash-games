@@ -200,3 +200,6 @@ class GameRating(models.Model):
         super().save(*args, **kwargs)
         if is_new:
             self.game.add_rating(self.rating)
+
+class YourModel(models.Model):
+    name = models.CharField(max_length=255)
