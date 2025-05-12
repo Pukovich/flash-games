@@ -1,0 +1,79 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Профиль{% endblock %}
+
+{% block store_content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Информация профиля</h5>
+                    <form method="post" action="{% url 'store:profile' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Имя пользователя</label>
+                            <input type="text" name="username" class="form-control" id="id_username" value="{{ user.username }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" id="id_email" value="{{ user.email }}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Изменить пароль</h5>
+                    <form method="post" action="{% url 'store:change_password' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_old_password" class="form-label">Текущий пароль</label>
+                            <input type="password" name="old_password" class="form-control" id="id_old_password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_new_password1" class="form-label">Новый пароль</label>
+                            <input type="password" name="new_password1" class="form-control" id="id_new_password1" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_new_password2" class="form-label">Подтверждение нового пароля</label>
+                            <input type="password" name="new_password2" class="form-control" id="id_new_password2" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Изменить пароль</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">История заказов</h5>
+                    {% if orders %}
+                    <div class="list-group">
+                        {% for order in orders %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Заказ #{{ order.id }}</h6>
+                                <small>{{ order.created_at|date:"d.m.Y H:i" }}</small>
+                            </div>
+                            <p class="mb-1">
+                                {% for item in order.items.all %}
+                                {{ item.game.name }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            </p>
+                            <small class="text-muted">Итого: {{ order.total_price }} ₽</small>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-center">У вас пока нет заказов</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

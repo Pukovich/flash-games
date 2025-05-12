@@ -1,0 +1,100 @@
+{% extends 'flash/base.html' %}
+
+{% block title %}Flash Games - Флеш игры{% endblock %}
+
+{% block flash_content %}
+<div class="container py-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-4 mb-0">Флеш игры</h1>
+        </div>
+    </div>
+
+    <!-- Фильтры и сортировка -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <!-- Категории -->
+            <div class="btn-group mb-2">
+                <a href="{% url 'flash:store' %}" class="btn btn-outline-primary {% if not current_category %}active{% endif %}">
+                    Все
+                </a>
+                {% for category in categories %}
+                <a href="?category={{ category.slug }}" 
+                   class="btn btn-outline-primary {% if current_category == category.slug %}active{% endif %}">
+                    {{ category.name }}
+                    <span class="badge bg-secondary">{{ category.games_count }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Сортировка -->
+        <div class="col-md-4">
+            <select class="form-select" onchange="window.location.href=this.value">
+                <option value="?{% if current_category %}category={{ current_category }}&{% endif %}" 
+                        {% if not current_sort %}selected{% endif %}>
+                    По дате добавления
+                </option>
+                <option value="?{% if current_category %}category={{ current_category }}&{% endif %}sort=rating" 
+                        {% if current_sort == 'rating' %}selected{% endif %}>
+                    По рейтингу
+                </option>
+                <option value="?{% if current_category %}category={{ current_category }}&{% endif %}sort=views" 
+                        {% if current_sort == 'views' %}selected{% endif %}>
+                    По популярности
+                </option>
+                <option value="?{% if current_category %}category={{ current_category }}&{% endif %}sort=name" 
+                        {% if current_sort == 'name' %}selected{% endif %}>
+                    По названию
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Список игр -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 g-4">
+        {% for game in games %}
+        <div class="col">
+            <div class="card h-100">
+                {% if game.thumbnail %}
+                <img src="{{ game.thumbnail.url }}" class="card-img-top" alt="{{ game.name }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                    <i class="fas fa-gamepad fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ game.name }}</h5>
+                    <p class="card-text">
+                        <span class="badge bg-primary">{{ game.category.name }}</span>
+                    </p>
+                    <p class="card-text">{{ game.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="rating">
+                            <i class="fas fa-star text-warning"></i>
+                            <span>{{ game.rating|floatformat:1 }}</span>
+                            <small class="text-muted">({{ game.total_ratings }})</small>
+                        </div>
+                        <div class="views">
+                            <i class="fas fa-eye text-muted"></i>
+                            <span>{{ game.views }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-top-0">
+                    <a href="{% url 'flash:play_game' game.id %}" class="btn btn-primary w-100">
+                        <i class="fas fa-play me-2"></i>Играть
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                В данный момент нет доступных игр. Скоро здесь появятся новые игры!
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %} 

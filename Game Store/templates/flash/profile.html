@@ -1,0 +1,186 @@
+{% extends 'flash/base.html' %}
+
+{% block title %}Профиль - FlashGamesTest{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .profile-avatar {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+    }
+    .profile-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    .stat-item {
+        text-align: center;
+        padding: 10px;
+        background: white;
+        border-radius: 5px;
+        min-width: 100px;
+    }
+    .stat-value {
+        font-size: 1.5em;
+        font-weight: bold;
+        color: #0d6efd;
+    }
+    .achievements-section {
+        margin-top: 30px;
+    }
+    .achievement-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .achievement-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+    .achievement-info {
+        flex-grow: 1;
+    }
+    .achievement-name {
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    .achievement-game {
+        color: #6c757d;
+        font-size: 0.9em;
+    }
+    .achievement-points {
+        color: #198754;
+        font-weight: bold;
+    }
+    .achievement-date {
+        color: #6c757d;
+        font-size: 0.8em;
+    }
+</style>
+{% endblock %}
+
+{% block flash_content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Профиль пользователя -->
+        <div class="col-md-4">
+            <div class="profile-header">
+                {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="profile-avatar">
+                {% else %}
+                <img src="https://via.placeholder.com/150" alt="{{ user.username }}" class="profile-avatar">
+                {% endif %}
+                
+                <h2 class="h4 mb-3">{{ user.username }}</h2>
+                
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ user.profile.total_points }}</div>
+                        <div class="stat-label">Очки</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ achievements.count }}</div>
+                        <div class="stat-label">Достижения</div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Email:</strong> {{ user.email }}
+                </div>
+
+                {% if user.profile.bio %}
+                <div class="mb-3">
+                    <strong>О себе:</strong>
+                    <p class="mb-0">{{ user.profile.bio }}</p>
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <strong>Дата регистрации:</strong> {{ user.date_joined|date:"d.m.Y" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Формы редактирования -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="h5 mb-0">Редактировать профиль</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ user_form.username.id_for_label }}" class="form-label">Имя пользователя:</label>
+                            {{ user_form.username }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ user_form.email.id_for_label }}" class="form-label">Email:</label>
+                            {{ user_form.email }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">Аватар:</label>
+                            {{ profile_form.avatar }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ profile_form.bio.id_for_label }}" class="form-label">О себе:</label>
+                            {{ profile_form.bio }}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Сохранить изменения
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Достижения -->
+            <div class="achievements-section">
+                <h3 class="h4 mb-3">Достижения</h3>
+                
+                {% if achievements %}
+                    {% for user_achievement in achievements %}
+                    <div class="achievement-card">
+                        <img src="{{ user_achievement.achievement.icon.url }}" alt="{{ user_achievement.achievement.name }}" class="achievement-icon">
+                        <div class="achievement-info">
+                            <div class="achievement-name">{{ user_achievement.achievement.name }}</div>
+                            <div class="achievement-game">{{ user_achievement.achievement.game.name }}</div>
+                            <div class="achievement-description">{{ user_achievement.achievement.description }}</div>
+                        </div>
+                        <div class="achievement-meta">
+                            <div class="achievement-points">+{{ user_achievement.achievement.points }} очков</div>
+                            <div class="achievement-date">{{ user_achievement.unlocked_at|date:"d.m.Y" }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        У вас пока нет достижений. Играйте в игры, чтобы получать достижения!
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
